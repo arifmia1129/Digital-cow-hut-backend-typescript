@@ -12,6 +12,17 @@ import httpStatus from "../../../shared/httpStatus";
 import { cowFilterableField } from "./cow.constant";
 import { ICow } from "./cow.interface";
 
+export const createCow = catchAsync(async (req: Request, res: Response) => {
+  const result = await cowService.createCowService(req.body);
+
+  sendResponse<ICow>(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Successfully created cow",
+    data: result,
+  });
+});
+
 export const getCow = catchAsync(async (req: Request, res: Response) => {
   const filterData: Filter = pick(req.query, cowFilterableField);
   const paginationOptions: Pagination = pick(req.query, paginationField);

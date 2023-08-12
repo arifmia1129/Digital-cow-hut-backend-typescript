@@ -31,7 +31,7 @@ export const createCowValidation = z.object({
   }),
 });
 
-export const cowUpdateValidation = z.object({
+export const updateCowValidation = z.object({
   name: z.string().optional(),
   age: z.number().optional(),
   price: z.number().optional(),

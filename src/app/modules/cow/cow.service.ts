@@ -11,8 +11,15 @@ import httpStatus from "../../../shared/httpStatus";
 import { ICow } from "./cow.interface";
 import Cow from "./cow.model";
 import { cowSearchableField } from "./cow.constant";
+import User from "../user/user.model";
 
 export const createCowService = async (cow: ICow): Promise<ICow | null> => {
+  const isUserExist = await User.findById(cow.seller);
+
+  if (!isUserExist) {
+    throw new ApiError("Seller not found by given id", httpStatus.BAD_REQUEST);
+  }
+
   const res = await Cow.create(cow);
 
   if (!res) {
