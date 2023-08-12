@@ -10,6 +10,7 @@ import { paginationField } from "../../constant/pagination";
 import * as userService from "./user.service";
 import { userFilterableField } from "./user.constant";
 import { IUser } from "./user.interface";
+import httpStatus from "../../../shared/httpStatus";
 
 export const getUser = catchAsync(async (req: Request, res: Response) => {
   const filterData: Filter = pick(req.query, userFilterableField);
@@ -21,7 +22,7 @@ export const getUser = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse<IUser[]>(res, {
-    statusCode: 200,
+    statusCode: httpStatus.OK,
     success: true,
     message: "Successfully get User",
     meta: result.meta,
@@ -33,7 +34,7 @@ export const getUserById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await userService.getUserByIdService(id);
   sendResponse<IUser>(res, {
-    statusCode: 200,
+    statusCode: httpStatus.OK,
     success: true,
     message: "Successfully get User by id",
     data: result,
@@ -46,7 +47,7 @@ export const updateUserById = catchAsync(
 
     const result = await userService.updateUserByIdService(id, req.body);
     sendResponse<IUser>(res, {
-      statusCode: 200,
+      statusCode: httpStatus.OK,
       success: true,
       message: "Successfully updated User",
       data: result,
@@ -59,7 +60,7 @@ export const deleteUserById = catchAsync(
     const { id } = req.params;
     const result = await userService.deleteUserByIdService(id);
     sendResponse<IUser>(res, {
-      statusCode: 200,
+      statusCode: httpStatus.OK,
       success: true,
       message: "Successfully deleted User",
       data: result,
