@@ -17,7 +17,8 @@ app.use(cors());
 app.use("/api/v1", router);
 
 app.get("/", async (req: Request, res: Response) => {
-  res.status(200).json({
+  res.status(httpStatus.OK).json({
+    statusCode: httpStatus.OK,
     success: true,
     message: "Server is running successfully",
   });
