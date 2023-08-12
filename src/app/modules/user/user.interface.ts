@@ -1,6 +1,6 @@
 import { HydratedDocument, Model } from "mongoose";
 
-type Name = {
+export type Name = {
   firstName: string;
   lastName: string;
 };
