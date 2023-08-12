@@ -62,9 +62,17 @@ export const getCowService = async (
 
   if (Object.keys(filtersData).length) {
     andCondition.push({
-      $and: Object.entries(filtersData).map(([field, value]) => ({
-        [field]: value,
-      })),
+      $and: Object.entries(filtersData).map(([field, value]) => {
+        if (typeof value === "string") {
+          return {
+            [field]: {
+              $regex: value,
+              $options: "i", // This makes the search case-insensitive
+            },
+          };
+        }
+        return { [field]: value };
+      }),
     });
   }
 
