@@ -34,6 +34,24 @@ export const createOrderService = async (
       throw new ApiError("Cow not found by giving id", httpStatus.BAD_REQUEST);
     }
 
+    // if cow label is sold throw error
+    if (isCowExists.label === "sold out") {
+      throw new ApiError(
+        "Cow is already sold. Try to buy a another cow.",
+        httpStatus.BAD_REQUEST,
+      );
+    }
+
+    // get seller
+    const seller = await User.findById(isCowExists.seller);
+
+    if (!seller) {
+      throw new ApiError(
+        "Cow seller is not found by giving id",
+        httpStatus.BAD_REQUEST,
+      );
+    }
+
     // find buyer by id
     const isBuyerExists = await User.findById(order.buyer);
 
@@ -73,6 +91,10 @@ export const createOrderService = async (
 
     await isBuyerExists.save();
 
+    // add balance buyer to seller
+    seller.income += isCowExists.price;
+    await seller?.save();
+
     await session.commitTransaction();
     await session.endSession();
   } catch (error) {
@@ -83,7 +105,10 @@ export const createOrderService = async (
 
   if (orderInfo) {
     orderInfo = await Order.findById(orderInfo._id)
-      .populate("cow")
+      .populate({
+        path: "cow",
+        populate: [{ path: "seller" }],
+      })
       .populate("buyer");
   }
   return orderInfo || null;
@@ -102,7 +127,10 @@ export const getOrderService = async (
   }
 
   const res = await Order.find()
-    .populate("cow")
+    .populate({
+      path: "cow",
+      populate: [{ path: "seller" }],
+    })
     .populate("buyer")
     .sort(sortCondition)
     .skip(skip)
