@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as cowController from "./cow.controller";
 import requestValidator from "../../middleware/requestValidator";
-import * as cowValidation from "./cow.valition";
+import * as cowValidation from "./cow.validation";
 
 const cowRouter = Router();
 
