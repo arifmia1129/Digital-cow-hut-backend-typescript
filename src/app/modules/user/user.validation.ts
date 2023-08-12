@@ -25,36 +25,16 @@ export const createUserValidation = z.object({
 });
 
 export const updateUserValidation = z.object({
-  phoneNumber: z
-    .string({
-      required_error: "Phone number is required",
-    })
-    .optional(),
-  role: z
-    .enum([...userRole] as [string, ...string[]], {
-      required_error: "Role is required",
-    })
-    .optional(),
-  password: z
-    .string({
-      required_error: "Password is required",
-    })
-    .optional(),
+  phoneNumber: z.string().optional(),
+  role: z.enum([...userRole] as [string, ...string[]]).optional(),
+  password: z.string().optional(),
   name: z
     .object({
-      firstName: z
-        .string({
-          required_error: "First name must be required",
-        })
-        .optional(),
+      firstName: z.string().optional(),
       lastName: z.string().optional(),
     })
     .optional(),
-  address: z
-    .string({
-      required_error: "Address is required",
-    })
-    .optional(),
+  address: z.string().optional(),
   budget: z.number().optional(),
   income: z.number().optional(),
 });
