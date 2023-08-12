@@ -2,7 +2,6 @@
 import mongoose, { SortOrder } from "mongoose";
 import { paginationHelper } from "../../../helpers/paginationHelper";
 import {
-  Filter,
   Pagination,
   ResponseWithPagination,
 } from "../../../interfaces/databaseQuery.interface";
@@ -91,7 +90,6 @@ export const createOrderService = async (
 };
 
 export const getOrderService = async (
-  filters: Filter,
   paginationOptions: Pagination,
 ): Promise<ResponseWithPagination<IOrder[]>> => {
   const { page, limit, skip, sortBy, sortOrder } =
@@ -103,7 +101,12 @@ export const getOrderService = async (
     sortCondition[sortBy] = sortOrder;
   }
 
-  const res = await Order.find().sort(sortCondition).skip(skip).limit(limit);
+  const res = await Order.find()
+    .populate("cow")
+    .populate("buyer")
+    .sort(sortCondition)
+    .skip(skip)
+    .limit(limit);
 
   const total = await Order.countDocuments();
 
