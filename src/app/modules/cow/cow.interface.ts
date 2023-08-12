@@ -14,7 +14,7 @@ export type ICow = {
     | "Comilla"
     | "Rangpur"
     | "Mymensingh";
-  bread:
+  breed:
     | "Brahman"
     | "Nellore"
     | "Sahiwal"

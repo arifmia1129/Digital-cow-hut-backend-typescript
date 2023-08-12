@@ -9,7 +9,7 @@ export const cowLocation = [
   "Mymensingh",
 ];
 
-export const cowBread = [
+export const cowBreed = [
   "Brahman",
   "Nellore",
   "Sahiwal",
@@ -42,4 +42,6 @@ export const cowFilterableField = [
   "weight",
   "label",
   "category",
+  "maxPrice",
+  "minPrice",
 ];

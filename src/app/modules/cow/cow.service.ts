@@ -70,18 +70,19 @@ export const getCowService = async (
 
   if (minPrice) {
     andCondition.push({
-      price: { $gt: minPrice },
+      price: { $gt: Number(minPrice) },
     });
   }
   if (maxPrice) {
     andCondition.push({
-      price: { $lt: maxPrice },
+      price: { $lt: Number(maxPrice) },
     });
   }
 
   const whereConditions = andCondition.length ? { $and: andCondition } : {};
 
   const res = await Cow.find(whereConditions)
+    .populate("seller")
     .sort(sortCondition)
     .skip(skip)
     .limit(limit);
@@ -99,7 +100,7 @@ export const getCowService = async (
 };
 
 export const getCowByIdService = async (id: string): Promise<ICow | null> => {
-  const res = await Cow.findById(id);
+  const res = await Cow.findById(id).populate("seller");
 
   if (!res) {
     throw new ApiError(
@@ -123,7 +124,7 @@ export const updateCowByIdService = async (
 
   const res = await Cow.findOneAndUpdate({ _id: id }, payload, {
     new: true,
-  });
+  }).populate("seller");
 
   return res;
 };
