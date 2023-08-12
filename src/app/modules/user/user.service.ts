@@ -68,10 +68,15 @@ export const getUserService = async (
 };
 
 export const getUserByIdService = async (id: string): Promise<IUser | null> => {
-  const res = await User.findById(id)
-    .populate("academicSemester")
-    .populate("academicDepartment")
-    .populate("academicFaculty");
+  const res = await User.findById(id);
+
+  if (!res) {
+    throw new ApiError(
+      "Failed to retrieve user by given ID",
+      httpStatus.BAD_REQUEST,
+    );
+  }
+
   return res;
 };
 
