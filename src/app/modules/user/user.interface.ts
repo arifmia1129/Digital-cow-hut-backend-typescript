@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { HydratedDocument, Model } from "mongoose";
 
 export type Name = {
@@ -6,6 +7,7 @@ export type Name = {
 };
 
 export type IUser = {
+  _id?: string;
   phoneNumber: string;
   role: "seller" | "buyer";
   password: string;
@@ -16,7 +18,13 @@ export type IUser = {
 };
 
 export type IUserMethods = {
-  fullName(): string;
+  isUserExist(
+    phoneNumber: string,
+  ): Promise<Pick<IUser, "_id" | "phoneNumber" | "password" | "role"> | null>;
+  isPasswordMatched(
+    givenPassword: string,
+    savedPassword: string,
+  ): Promise<boolean>;
 };
 
 export type UserModel = {

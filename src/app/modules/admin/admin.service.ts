@@ -55,13 +55,13 @@ export const loginAdminService = async (
   const { _id, role } = isAdminExist;
 
   const accessToken = jwtHelper.createToken(
-    { adminId: _id, role },
+    { id: _id, role },
     config.jwt.secret as Secret,
     config.jwt.secret_expires_in as string,
   );
 
   const refreshToken = jwtHelper.createToken(
-    { adminId: _id, role },
+    { id: _id, role },
     config.jwt.refresh_secret as Secret,
     config.jwt.refresh_secret_expires_in as string,
   );
@@ -80,9 +80,17 @@ export const refreshTokenAdminService = async (
     config.jwt.refresh_secret as Secret,
   );
 
-  const { adminId, role } = verifiedToken;
+  const { id, role } = verifiedToken;
 
-  const isAdminExist = await Admin.findById(adminId);
+  let isAdminExist;
+
+  isAdminExist = await Admin.findById(id);
+
+  if (!isAdminExist) {
+    throw new ApiError("Admin does not exist", httpStatus.FORBIDDEN);
+  }
+
+  isAdminExist = await Admin.isAdminExist(isAdminExist.phoneNumber);
 
   if (!isAdminExist) {
     throw new ApiError("Admin does not exist", httpStatus.FORBIDDEN);
@@ -97,7 +105,7 @@ export const refreshTokenAdminService = async (
   }
 
   const accessToken = jwtHelper.createToken(
-    { adminId, role },
+    { id, role },
     config.jwt.secret as Secret,
     config.jwt.secret_expires_in as string,
   );
