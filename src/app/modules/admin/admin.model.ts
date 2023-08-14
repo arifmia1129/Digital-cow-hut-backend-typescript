@@ -1,8 +1,8 @@
 import { Schema, model } from "mongoose";
-import { IUser, IUserMethods, UserModel } from "./user.interface";
-import { userRole } from "./user.constant";
+import { AdminModel, IAdmin, IAdminMethods } from "./admin.interface";
+import { adminRole } from "./admin.constant";
 
-const userSchema = new Schema<IUser, UserModel, IUserMethods>(
+const adminSchema = new Schema<IAdmin, AdminModel, IAdminMethods>(
   {
     phoneNumber: {
       type: String,
@@ -11,7 +11,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     },
     role: {
       type: String,
-      enum: userRole,
+      enum: adminRole,
       required: true,
     },
     password: {
@@ -32,22 +32,12 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       type: String,
       required: true,
     },
-    budget: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    income: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
   },
   {
     timestamps: true,
   },
 );
 
-const User = model<IUser, UserModel>("User", userSchema);
+const Admin = model<IAdmin, AdminModel>("Admin", adminSchema);
 
-export default User;
+export default Admin;
