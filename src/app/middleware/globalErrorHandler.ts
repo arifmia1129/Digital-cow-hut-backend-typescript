@@ -36,8 +36,8 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     statusCode = 400;
     message = "Duplicate entry error";
     errorMessages = handleMongoServerError(err);
-  } else if (err instanceof Error) {
-    statusCode = 400;
+  } else if (err instanceof ApiError) {
+    statusCode = err.statusCode;
     message = err.message;
     errorMessages = [
       {
@@ -45,8 +45,8 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         message: err.message,
       },
     ];
-  } else if (err instanceof ApiError) {
-    statusCode = err.statusCode;
+  } else if (err instanceof Error) {
+    statusCode = 400;
     message = err.message;
     errorMessages = [
       {

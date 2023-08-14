@@ -122,12 +122,17 @@ export const getCowByIdService = async (id: string): Promise<ICow | null> => {
 
 export const updateCowByIdService = async (
   id: string,
+  sellerId: string,
   payload: Partial<ICow>,
 ): Promise<ICow | null> => {
   const isExist = await Cow.findById(id);
 
   if (!isExist) {
     throw new ApiError("Cow not found by given id", httpStatus.NOT_FOUND);
+  }
+
+  if (isExist.seller.toString() !== sellerId) {
+    throw new ApiError("You can update only your own cow information", 403);
   }
 
   const res = await Cow.findOneAndUpdate({ _id: id }, payload, {
@@ -139,7 +144,18 @@ export const updateCowByIdService = async (
 
 export const deleteCowByIdService = async (
   id: string,
+  sellerId: string,
 ): Promise<ICow | null> => {
+  const isExist = await Cow.findById(id);
+
+  if (!isExist) {
+    throw new ApiError("Cow not found by given id", httpStatus.NOT_FOUND);
+  }
+
+  if (isExist.seller.toString() !== sellerId) {
+    throw new ApiError("You can delete only your own cow information", 403);
+  }
+
   const res = await Cow.findByIdAndDelete(id);
   return res;
 };
