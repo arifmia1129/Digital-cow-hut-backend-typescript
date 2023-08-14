@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import ApiError from "../../../errors/ApiError";
 import httpStatus from "../../../shared/httpStatus";
 import { IAdmin } from "./admin.interface";
 import Admin from "./admin.model";
 
-export const createAdminService = async (
-  admin: IAdmin,
-): Promise<IAdmin | null> => {
+export const createAdminService = async (admin: IAdmin): Promise<IAdmin> => {
   const res = await Admin.create(admin);
 
   if (!res) {

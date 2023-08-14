@@ -6,7 +6,7 @@ import { createAdminValidation } from "./admin.validation";
 const adminRouter = Router();
 
 adminRouter.post(
-  "/",
+  "/create-admin",
   requestValidator(createAdminValidation),
   adminController.createAdmin,
 );
