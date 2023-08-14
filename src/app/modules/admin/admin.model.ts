@@ -19,7 +19,6 @@ const adminSchema = new Schema<IAdmin, AdminModel, IAdminMethods>(
     password: {
       type: String,
       required: true,
-      select: 0,
     },
     name: {
       firstName: {
@@ -39,6 +38,21 @@ const adminSchema = new Schema<IAdmin, AdminModel, IAdminMethods>(
     timestamps: true,
   },
 );
+
+// defined static to check admin exist or not
+adminSchema.statics.isAdminExist = async function (
+  phoneNumber: string,
+): Promise<Pick<IAdmin, "phoneNumber" | "password" | "role"> | null> {
+  return await this.findOne({ phoneNumber });
+};
+
+// defined static to check password valid or not
+adminSchema.statics.isPasswordMatched = async function (
+  givenPassword: string,
+  savedPassword: string,
+): Promise<boolean> {
+  return await bcrypt.compare(givenPassword, savedPassword);
+};
 
 adminSchema.pre("save", async function (next) {
   // hashing password

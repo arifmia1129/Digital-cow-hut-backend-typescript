@@ -1,8 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import ApiError from "../../../errors/ApiError";
 import httpStatus from "../../../shared/httpStatus";
-import { IAdmin } from "./admin.interface";
+import {
+  IAdmin,
+  LoginCredential,
+  LoginResponse,
+  RefreshToken,
+} from "./admin.interface";
 import Admin from "./admin.model";
+import * as jwtHelper from "../../../helpers/jwtHelper";
+import config from "../../../config";
+import { Secret } from "jsonwebtoken";
 
 export const createAdminService = async (admin: IAdmin): Promise<IAdmin> => {
   const res = await Admin.create(admin);
@@ -17,109 +25,84 @@ export const createAdminService = async (admin: IAdmin): Promise<IAdmin> => {
   return res;
 };
 
-// export const getAdminService = async (
-//   filters: Filter,
-//   paginationOptions: Pagination,
-// ): Promise<ResponseWithPagination<IAdmin[]>> => {
-//   const { page, limit, skip, sortBy, sortOrder } =
-//     paginationHelper.calculatePagination(paginationOptions);
+export const loginAdminService = async (
+  payload: LoginCredential,
+): Promise<LoginResponse> => {
+  const { phoneNumber, password } = payload;
 
-//   const sortCondition: { [key: string]: SortOrder } = {};
+  const isAdminExist = await Admin.isAdminExist(phoneNumber);
 
-//   if (sortBy && sortOrder) {
-//     sortCondition[sortBy] = sortOrder;
-//   }
+  if (!isAdminExist) {
+    throw new ApiError(
+      "Admin not found by given phone number",
+      httpStatus.NOT_FOUND,
+    );
+  }
 
-//   const { searchTerm, ...filtersData } = filters;
+  if (!isAdminExist?.password) {
+    throw new ApiError("Invalid Admin information.", httpStatus.BAD_REQUEST);
+  }
 
-//   const andCondition = [];
+  const isPasswordMatched = await Admin.isPasswordMatched(
+    password,
+    isAdminExist.password,
+  );
 
-//   if (searchTerm) {
-//     andCondition.push({
-//       $or: adminSearchableField.map(field => ({
-//         [field]: {
-//           $regex: searchTerm,
-//           $options: "i",
-//         },
-//       })),
-//     });
-//   }
+  if (!isPasswordMatched) {
+    throw new ApiError("Invalid ID or Password", httpStatus.FORBIDDEN);
+  }
 
-//   if (Object.keys(filtersData).length) {
-//     andCondition.push({
-//       $and: Object.entries(filtersData).map(([field, value]) => ({
-//         [field]: value,
-//       })),
-//     });
-//   }
+  const { _id, role } = isAdminExist;
 
-//   const whereConditions = andCondition.length ? { $and: andCondition } : {};
+  const accessToken = jwtHelper.createToken(
+    { adminId: _id, role },
+    config.jwt.secret as Secret,
+    config.jwt.secret_expires_in as string,
+  );
 
-//   const res = await Admin.find(whereConditions)
-//     .sort(sortCondition)
-//     .skip(skip)
-//     .limit(limit);
+  const refreshToken = jwtHelper.createToken(
+    { adminId: _id, role },
+    config.jwt.refresh_secret as Secret,
+    config.jwt.refresh_secret_expires_in as string,
+  );
 
-//   const total = await Admin.countDocuments(whereConditions);
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
 
-//   return {
-//     meta: {
-//       page,
-//       limit,
-//       total,
-//     },
-//     data: res,
-//   };
-// };
+export const refreshTokenAdminService = async (
+  token: string,
+): Promise<RefreshToken> => {
+  const verifiedToken = jwtHelper.verifyAndDecodeToken(
+    token,
+    config.jwt.refresh_secret as Secret,
+  );
 
-// export const getAdminByIdService = async (
-//   id: string,
-// ): Promise<IAdmin | null> => {
-//   const res = await Admin.findById(id);
+  const { adminId, role } = verifiedToken;
 
-//   if (!res) {
-//     throw new ApiError(
-//       "Failed to retrieve Admin by given ID",
-//       httpStatus.BAD_REQUEST,
-//     );
-//   }
+  const isAdminExist = await Admin.findById(adminId);
 
-//   return res;
-// };
+  if (!isAdminExist) {
+    throw new ApiError("Admin does not exist", httpStatus.FORBIDDEN);
+  }
 
-// export const updateAdminByIdService = async (
-//   id: string,
-//   payload: Partial<IAdmin>,
-// ): Promise<IAdmin | null> => {
-//   const isExist = await Admin.findById(id);
+  if (!isAdminExist?.password) {
+    throw new ApiError("Invalid Admin information.", httpStatus.BAD_REQUEST);
+  }
 
-//   if (!isExist) {
-//     throw new ApiError("Admin not found by given id", httpStatus.NOT_FOUND);
-//   }
+  if (isAdminExist.role !== role) {
+    throw new ApiError("Admin role is mismatched", httpStatus.FORBIDDEN);
+  }
 
-//   const { name, ...AdminInfo } = payload;
+  const accessToken = jwtHelper.createToken(
+    { adminId, role },
+    config.jwt.secret as Secret,
+    config.jwt.secret_expires_in as string,
+  );
 
-//   const updateInfo: Partial<IAdmin> = { ...AdminInfo };
-
-//   //   name object
-//   if (name && Object.keys(name).length > 0) {
-//     const nameKeys = Object.keys(name);
-//     nameKeys.forEach(key => {
-//       const nameKey = `name.${key}`;
-//       (updateInfo as any)[nameKey] = name[key as keyof Name];
-//     });
-//   }
-
-//   const res = await Admin.findOneAndUpdate({ _id: id }, updateInfo, {
-//     new: true,
-//   });
-
-//   return res;
-// };
-
-// export const deleteAdminByIdService = async (
-//   id: string,
-// ): Promise<IAdmin | null> => {
-//   const res = await Admin.findByIdAndDelete(id);
-//   return res;
-// };
+  return {
+    accessToken,
+  };
+};

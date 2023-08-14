@@ -1,4 +1,5 @@
-import { HydratedDocument, Model } from "mongoose";
+/* eslint-disable no-unused-vars */
+import { Model } from "mongoose";
 
 export type Name = {
   firstName: string;
@@ -6,6 +7,7 @@ export type Name = {
 };
 
 export type IAdmin = {
+  _id?: string;
   phoneNumber: string;
   role: "admin";
   password: string;
@@ -13,11 +15,30 @@ export type IAdmin = {
   address: string;
 };
 
+export type LoginCredential = {
+  phoneNumber: string;
+  password: string;
+};
+
+export type LoginResponse = {
+  accessToken: string;
+  refreshToken?: string;
+};
+
+export type RefreshToken = {
+  accessToken: string;
+};
+
 export type IAdminMethods = {
   fullName(): string;
 };
 
 export type AdminModel = {
-  createWithFullName(): Promise<HydratedDocument<IAdmin, IAdminMethods>>;
-  // name: string,
+  isAdminExist(
+    phoneNumber: string,
+  ): Promise<Pick<IAdmin, "phoneNumber" | "password" | "role" | "_id"> | null>;
+  isPasswordMatched(
+    givenPassword: string,
+    savedPassword: string,
+  ): Promise<boolean>;
 } & Model<IAdmin, object, IAdminMethods>;
