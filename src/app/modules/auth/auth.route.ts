@@ -8,7 +8,7 @@ const authRouter = Router();
 authRouter.post(
   "/signup",
   requestValidator(createUserValidation),
-  authController.createStudent,
+  authController.createUser,
 );
 
 export default authRouter;

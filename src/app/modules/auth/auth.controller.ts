@@ -5,7 +5,7 @@ import * as authService from "../auth/auth.service";
 import { IUser } from "../user/user.interface";
 import httpStatus from "../../../shared/httpStatus";
 
-export const createStudent = catchAsync(async (req: Request, res: Response) => {
+export const createUser = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.createUserService(req.body);
 
   sendResponse<IUser>(res, {
