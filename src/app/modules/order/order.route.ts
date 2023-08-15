@@ -18,4 +18,11 @@ orderRouter
     auth(USER_ROLE_ENUM.ADMIN, USER_ROLE_ENUM.BUYER, USER_ROLE_ENUM.SELLER),
     orderController.getOrder,
   );
+
+orderRouter
+  .route("/:id")
+  .get(
+    auth(USER_ROLE_ENUM.ADMIN, USER_ROLE_ENUM.BUYER, USER_ROLE_ENUM.SELLER),
+    orderController.getOrderById,
+  );
 export default orderRouter;

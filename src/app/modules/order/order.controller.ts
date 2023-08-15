@@ -35,3 +35,19 @@ export const getOrder = catchAsync(async (req: Request, res: Response) => {
     data: result.data,
   });
 });
+
+export const getOrderById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result = await orderService.getOrderByIdService(
+    id,
+    req.user as JwtPayload,
+  );
+
+  sendResponse<IOrder>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Successfully get Order",
+    data: result,
+  });
+});

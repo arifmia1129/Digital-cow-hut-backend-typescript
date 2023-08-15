@@ -10,12 +10,12 @@ const userRouter = Router();
 userRouter.get("/", auth(USER_ROLE_ENUM.ADMIN), userController.getUser);
 userRouter.get(
   "/my-profile",
-  auth(USER_ROLE_ENUM.ADMIN, USER_ROLE_ENUM.SELLER, USER_ROLE_ENUM.BUYER),
+  auth(USER_ROLE_ENUM.SELLER, USER_ROLE_ENUM.BUYER),
   userController.getUserProfileByToken,
 );
 userRouter.patch(
   "/my-profile",
-  auth(USER_ROLE_ENUM.ADMIN, USER_ROLE_ENUM.SELLER, USER_ROLE_ENUM.BUYER),
+  auth(USER_ROLE_ENUM.SELLER, USER_ROLE_ENUM.BUYER),
   userController.updateUserProfileByToken,
 );
 userRouter

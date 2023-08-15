@@ -200,3 +200,59 @@ export const getOrderService = async (
     data: res,
   };
 };
+
+export const getOrderByIdService = async (
+  orderId: string,
+  user: JwtPayload,
+): Promise<IOrder> => {
+  const { id, role } = user;
+
+  let res;
+
+  if (role === "admin") {
+    res = await Order.findById(orderId)
+      .populate({
+        path: "cow",
+        populate: {
+          path: "seller",
+        },
+      })
+      .populate("buyer");
+  }
+  if (role === "buyer") {
+    res = await Order.findOne({ _id: orderId, buyer: id })
+      .populate({
+        path: "cow",
+        populate: {
+          path: "seller",
+        },
+      })
+      .populate("buyer");
+  }
+
+  if (role === "seller") {
+    const order = await Order.findOne({ _id: orderId })
+      .populate({
+        path: "cow",
+        populate: {
+          path: "seller",
+        },
+      })
+      .populate("buyer")
+      .exec();
+    if (order && "seller" in order.cow) {
+      if (order.cow.seller._id && order.cow.seller._id.toString() === id) {
+        res = order;
+      }
+    }
+  }
+
+  if (!res) {
+    throw new ApiError(
+      "Failed to retrieve order information by given ID",
+      httpStatus.BAD_REQUEST,
+    );
+  }
+
+  return res;
+};

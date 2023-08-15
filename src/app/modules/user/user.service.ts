@@ -12,7 +12,6 @@ import { userSearchableField } from "./user.constant";
 import ApiError from "../../../errors/ApiError";
 import httpStatus from "../../../shared/httpStatus";
 import { JwtPayload } from "jsonwebtoken";
-import Admin from "../admin/admin.model";
 import { IAdmin } from "../admin/admin.interface";
 import bcrypt from "bcryptjs";
 import config from "../../../config";
@@ -88,20 +87,12 @@ export const getUserByIdService = async (id: string): Promise<IUser | null> => {
 export const getUserProfileByTokenService = async (
   payload: JwtPayload,
 ): Promise<IUser | IAdmin> => {
-  const { id, role } = payload;
+  const { id } = payload;
 
-  let res;
-
-  if (role === "admin") {
-    res = await Admin.findById(id);
-  }
-
-  if (role === "seller" || role === "buyer") {
-    res = await User.findById(id);
-  }
+  const res = await User.findById(id);
 
   if (!res) {
-    throw new ApiError("User profile not found", httpStatus.BAD_REQUEST);
+    throw new ApiError("User profile not found", httpStatus.NOT_FOUND);
   }
 
   return res;
@@ -111,7 +102,7 @@ export const updateUserProfileByTokenService = async (
   userPayload: JwtPayload,
   updatePayload: Partial<IUser>,
 ): Promise<IUser | IAdmin> => {
-  const { id, role } = userPayload;
+  const { id } = userPayload;
 
   const { name, password, ...userInfo } = updatePayload;
 
@@ -136,19 +127,9 @@ export const updateUserProfileByTokenService = async (
     updateInfo.password = hashedPassword;
   }
 
-  let res;
-
-  if (role === "admin") {
-    res = await Admin.findOneAndUpdate({ _id: id }, updateInfo, {
-      new: true,
-    });
-  }
-
-  if (role === "seller" || role === "buyer") {
-    res = await User.findOneAndUpdate({ _id: id }, updateInfo, {
-      new: true,
-    });
-  }
+  const res = await User.findOneAndUpdate({ _id: id }, updateInfo, {
+    new: true,
+  });
 
   if (!res) {
     throw new ApiError(
