@@ -11,6 +11,8 @@ import * as userService from "./user.service";
 import { userFilterableField } from "./user.constant";
 import { IUser } from "./user.interface";
 import httpStatus from "../../../shared/httpStatus";
+import { JwtPayload } from "jsonwebtoken";
+import { IAdmin } from "../admin/admin.interface";
 
 export const getUser = catchAsync(async (req: Request, res: Response) => {
   const filterData: Filter = pick(req.query, userFilterableField);
@@ -40,6 +42,20 @@ export const getUserById = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+export const getUserProfileByToken = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await userService.getUserProfileByTokenService(
+      req.user as JwtPayload,
+    );
+    sendResponse<IUser | IAdmin>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Successfully retrieved user profile data",
+      data: result,
+    });
+  },
+);
 
 export const updateUserById = catchAsync(
   async (req: Request, res: Response) => {

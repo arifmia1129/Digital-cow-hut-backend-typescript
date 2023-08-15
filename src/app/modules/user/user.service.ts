@@ -11,6 +11,9 @@ import User from "./user.model";
 import { userSearchableField } from "./user.constant";
 import ApiError from "../../../errors/ApiError";
 import httpStatus from "../../../shared/httpStatus";
+import { JwtPayload } from "jsonwebtoken";
+import Admin from "../admin/admin.model";
+import { IAdmin } from "../admin/admin.interface";
 
 export const getUserService = async (
   filters: Filter,
@@ -69,6 +72,34 @@ export const getUserService = async (
 
 export const getUserByIdService = async (id: string): Promise<IUser | null> => {
   const res = await User.findById(id);
+
+  if (!res) {
+    throw new ApiError(
+      "Failed to retrieve user by given ID",
+      httpStatus.BAD_REQUEST,
+    );
+  }
+
+  return res;
+};
+
+export const getUserProfileByTokenService = async (
+  payload: JwtPayload,
+): Promise<IUser | IAdmin> => {
+  const { id, role } = payload;
+
+  let res;
+
+  if (role === "admin") {
+    res = await Admin.findById(id);
+    if (!res) {
+      throw new ApiError("User not found", httpStatus.NOT_FOUND);
+    }
+  }
+
+  if (role === "seller" || role === "buyer") {
+    res = await User.findById(id);
+  }
 
   if (!res) {
     throw new ApiError(
