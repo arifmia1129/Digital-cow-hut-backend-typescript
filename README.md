@@ -1,32 +1,50 @@
-# Description about project: Digital Cow Hut
+# Digital Cow Hut Auth Admin
 
-## Live Link: https://api-digital-cow-hut.vercel.app
+### Live Link: https://cow-hut-admin-auth-eight.vercel.app
+
+### Application Routes:
+
+#### Main part
+
+### Auth (User)
+
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/auth/login (POST)
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/auth/signup (POST)
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/auth/refresh-token (POST)
+
+### Auth (Admin)
+
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/admins/create-admin (POST)
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/admins/login (POST)
 
 ### User
 
-- api/v1/auth/signup (POST)
-- api/v1/users (GET) Get all user by hit this api
-- api/v1/users/:id (GET) Get specific user by id
-- api/v1/users/:id (PATCH) Update specific user by id
-- api/v1/users/:id (DELETE) Delete specific user by id
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/users (GET) Include an id that is saved in your database
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/users/6177a5b87d32123f08d2f5d4 (Single GET) Include an id that is saved in your database
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/users/6177a5b87d32123f08d2f5d4 (PATCH) Include an id that is saved in your database
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/users/6177a5b87d32123f08d2f5d4 (DELETE) Include an id that is saved in your database
 
 ### Cows
 
-- api/v1/cows (POST)
-- api/v1/cows (GET)
-- api/v1/cows/6177a5b87d32123f08d2f5d4 (Single GET) Include an id that is saved in your database
-- api/v1/cows/6177a5b87d32123f08d2f5d4 (PATCH)
-- api/v1/cows/6177a5b87d32123f08d2f5d4 (DELETE) Include an id that is saved in your database
-
-### Pagination and Filtering routes of Cows
-
-- api/v1/cows?page=1&limit=10
-- api/v1/cows?sortBy=price&sortOrder=asc
-- api/v1/cows?minPrice=20000&maxPrice=70000
-- api/v1/cows?location=Chattogram
-- api/v1/cows?searchTerm=Cha
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/cows (POST)
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/cows (GET)
+  Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/cows/6177a5b87d32123f08d2f5d4 (Single GET) Include an id that is saved in your database
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/cows/6177a5b87d32123f08d2f5d4 (PATCH) Include an id that is saved in your database
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/cows/6177a5b87d32123f08d2f5d4 (DELETE) Include an id that is saved in your database
 
 ### Orders
 
-- api/v1/orders (POST)
-- api/v1/orders (GET)
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/orders (POST)
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/orders (GET)
+  #### Bonus Part
+  ### Admin
+  - Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/admins/create-admin (POST)
+
+### My Profile
+
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/users/my-profile (GET)
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/users/my-profile (PATCH)
+
+### Order:
+
+- Route: https://cow-hut-admin-auth-eight.vercel.app/api/v1/orders/6177a5b87d32123f08d2f5d4 (GET)
