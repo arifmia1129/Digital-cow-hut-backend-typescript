@@ -11,6 +11,7 @@ import { IOrder } from "./order.interface";
 import Cow from "../cow/cow.model";
 import Order from "./order.model";
 import User from "../user/user.model";
+import { JwtPayload } from "jsonwebtoken";
 
 export const createOrderService = async (
   order: IOrder,
@@ -82,18 +83,33 @@ export const createOrderService = async (
     orderInfo = newOrder[0];
 
     // change cow label
-    isCowExists.label = "sold out";
-    await isCowExists.save();
+    await Cow.findOneAndUpdate(
+      { _id: order.cow },
+      {
+        label: "sold out",
+      },
+      { session },
+    );
 
     // cut balance from buyer account
     // remember newOrder return an array
-    isBuyerExists.budget -= isCowExists.price;
 
-    await isBuyerExists.save();
+    await User.findOneAndUpdate(
+      { _id: order.buyer },
+      {
+        budget: (isBuyerExists.budget -= isCowExists.price),
+      },
+      { session },
+    );
 
     // add balance buyer to seller
-    seller.income += isCowExists.price;
-    await seller?.save();
+    await User.findOneAndUpdate(
+      { _id: isCowExists.seller },
+      {
+        income: (seller.income += isCowExists.price),
+      },
+      { session },
+    );
 
     await session.commitTransaction();
     await session.endSession();
@@ -116,7 +132,8 @@ export const createOrderService = async (
 
 export const getOrderService = async (
   paginationOptions: Pagination,
-): Promise<ResponseWithPagination<IOrder[]>> => {
+  userInfo: JwtPayload,
+): Promise<ResponseWithPagination<IOrder[] | null>> => {
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelper.calculatePagination(paginationOptions);
 
@@ -126,16 +143,52 @@ export const getOrderService = async (
     sortCondition[sortBy] = sortOrder;
   }
 
-  const res = await Order.find()
-    .populate({
-      path: "cow",
-      populate: [{ path: "seller" }],
-    })
-    .populate("buyer")
-    .sort(sortCondition)
-    .skip(skip)
-    .limit(limit);
+  let res;
 
+  if (userInfo.role === "admin") {
+    res = await Order.find()
+      .populate({
+        path: "cow",
+        populate: [{ path: "seller" }],
+      })
+      .populate("buyer")
+      .sort(sortCondition)
+      .skip(skip)
+      .limit(limit);
+  } else if (userInfo.role === "buyer") {
+    res = await Order.find({ buyer: userInfo.id })
+      .populate({
+        path: "cow",
+        populate: [{ path: "seller" }],
+      })
+      .populate("buyer")
+      .sort(sortCondition)
+      .skip(skip)
+      .limit(limit);
+  } else if (userInfo.role === "seller") {
+    const orders = await Order.find()
+      .populate({
+        path: "cow",
+        populate: {
+          path: "seller",
+        },
+      })
+      .populate("buyer")
+      .exec();
+
+    // Filter orders based on seller's ID
+    res = orders.filter(order => {
+      if (order.cow instanceof mongoose.Types.ObjectId) {
+        return false; // Skip orders with ObjectId, you're interested in ICow
+      }
+
+      // Now you know order.cow is of type ICow
+      return order.cow.seller._id?.toString() === userInfo.id;
+    });
+  }
+  if (!res) {
+    throw new ApiError("Order not found", httpStatus.NOT_FOUND);
+  }
   const total = await Order.countDocuments();
 
   return {
