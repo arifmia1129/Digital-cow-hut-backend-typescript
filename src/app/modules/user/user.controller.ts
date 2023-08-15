@@ -70,6 +70,20 @@ export const updateUserById = catchAsync(
     });
   },
 );
+export const updateUserProfileByToken = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await userService.updateUserProfileByTokenService(
+      req.user as JwtPayload,
+      req.body,
+    );
+    sendResponse<IUser | IAdmin>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Successfully updated user profile data",
+      data: result,
+    });
+  },
+);
 
 export const deleteUserById = catchAsync(
   async (req: Request, res: Response) => {

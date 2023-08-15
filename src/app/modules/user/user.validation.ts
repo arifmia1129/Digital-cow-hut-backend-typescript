@@ -29,7 +29,6 @@ export const createUserValidation = z.object({
 export const updateUserValidation = z.object({
   body: z.object({
     phoneNumber: z.string().optional(),
-    role: z.enum([...userRole] as [string, ...string[]]).optional(),
     password: z.string().optional(),
     name: z
       .object({
@@ -38,7 +37,5 @@ export const updateUserValidation = z.object({
       })
       .optional(),
     address: z.string().optional(),
-    budget: z.number().optional(),
-    income: z.number().optional(),
   }),
 });

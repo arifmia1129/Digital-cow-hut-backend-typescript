@@ -14,6 +14,8 @@ import httpStatus from "../../../shared/httpStatus";
 import { JwtPayload } from "jsonwebtoken";
 import Admin from "../admin/admin.model";
 import { IAdmin } from "../admin/admin.interface";
+import bcrypt from "bcryptjs";
+import config from "../../../config";
 
 export const getUserService = async (
   filters: Filter,
@@ -92,9 +94,6 @@ export const getUserProfileByTokenService = async (
 
   if (role === "admin") {
     res = await Admin.findById(id);
-    if (!res) {
-      throw new ApiError("User not found", httpStatus.NOT_FOUND);
-    }
   }
 
   if (role === "seller" || role === "buyer") {
@@ -102,9 +101,59 @@ export const getUserProfileByTokenService = async (
   }
 
   if (!res) {
+    throw new ApiError("User profile not found", httpStatus.BAD_REQUEST);
+  }
+
+  return res;
+};
+
+export const updateUserProfileByTokenService = async (
+  userPayload: JwtPayload,
+  updatePayload: Partial<IUser>,
+): Promise<IUser | IAdmin> => {
+  const { id, role } = userPayload;
+
+  const { name, password, ...userInfo } = updatePayload;
+
+  const updateInfo: Partial<IUser> = { ...userInfo };
+
+  //   name object
+  if (name && Object.keys(name).length > 0) {
+    const nameKeys = Object.keys(name);
+    nameKeys.forEach(key => {
+      const nameKey = `name.${key}`;
+      (updateInfo as any)[nameKey] = name[key as keyof Name];
+    });
+  }
+
+  // password
+  if (password) {
+    const hashedPassword = await bcrypt.hash(
+      password,
+      Number(config.bcrypt_salt_rounds),
+    );
+
+    updateInfo.password = hashedPassword;
+  }
+
+  let res;
+
+  if (role === "admin") {
+    res = await Admin.findOneAndUpdate({ _id: id }, updateInfo, {
+      new: true,
+    });
+  }
+
+  if (role === "seller" || role === "buyer") {
+    res = await User.findOneAndUpdate({ _id: id }, updateInfo, {
+      new: true,
+    });
+  }
+
+  if (!res) {
     throw new ApiError(
-      "Failed to retrieve user by given ID",
-      httpStatus.BAD_REQUEST,
+      "Couldn't update user profile information",
+      httpStatus.NOT_FOUND,
     );
   }
 
