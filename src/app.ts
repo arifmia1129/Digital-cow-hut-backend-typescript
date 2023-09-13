@@ -19,6 +19,8 @@ app.use(cors());
 // router
 app.use("/api/v1", router);
 
+
+// root route
 app.get("/", async (req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
     statusCode: httpStatus.OK,
